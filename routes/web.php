@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Contact;
+use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,5 +17,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect() -> route('login');
+});
+
+//仮ルート:コントローラー作ってから書き換え
+Route::middleware('auth')->group(function () {
+    Route::get('/admin', function () {
+        return view('admin.index', [
+            'contacts' => Contact::with(['category', 'tags'])->paginate(7),
+            'categories' => Category::all(),
+            'tags' => Tag::all(),
+        ]);
+    })->name('admin.index');
 });
