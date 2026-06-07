@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ContactController;
 use App\Models\Contact;
 use App\Models\Category;
 use App\Models\Tag;
@@ -16,9 +17,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return redirect() -> route('login');
-});
+Route::get('/',[ContactController::class,'index'])->name('contact.index');
+Route::post('/contacts/confirm', [ContactController::class, 'confirm'])->name('contact.confirm');
+Route::post('/contacts', [ContactController::class, 'store'])->name('contact.store');
+Route::get('/thanks', [ContactController::class, 'thanks'])->name('contact.thanks');
 
 //仮ルート:コントローラー作ってから書き換え
 Route::middleware('auth')->group(function () {
