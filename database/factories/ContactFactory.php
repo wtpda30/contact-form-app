@@ -18,8 +18,7 @@ class ContactFactory extends Factory
     public function definition(): array
     {
         return [
-            // 既存のカテゴリIDからランダムに1つ選ぶ
-            'category_id' => Category::inRandomOrder()->value('id'),
+            'category_id' => Category::factory(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
             'gender' => fake()->numberBetween(1, 3), // 1:男性, 2:女性, 3:その他
