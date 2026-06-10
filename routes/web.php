@@ -12,6 +12,7 @@ Route::get('/',[ContactController::class,'index'])->name('contact.index');
 Route::post('/contacts/confirm', [ContactController::class, 'confirm'])->name('contact.confirm');
 Route::post('/contacts', [ContactController::class, 'store'])->name('contact.store');
 Route::get('/thanks', [ContactController::class, 'thanks'])->name('contact.thanks');
+Route::get('/contacts/export', [ContactController::class, 'export'])->middleware('auth');
 
 Route::middleware('auth')->group(function () {
     Route::post('/admin/tags', [TagController::class,'store']);
