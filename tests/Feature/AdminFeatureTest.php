@@ -185,4 +185,85 @@ class AdminFeatureTest extends TestCase
         $this->assertEquals(7, $contacts->perPage());
         $this->assertEquals(8, $contacts->total());
     }
+
+    public function test_ログイン済みならフィルタ条件付きでCSVをダウンロードできる(): void
+    {
+        $user = User::factory()->create();
+
+        $category1 = Category::factory()->create(['content' => '商品トラブル']);
+        $category2 = Category::factory()->create(['content' => 'その他']);
+
+        Contact::factory()->create([
+            'first_name' => '山田',
+            'last_name' => '太郎',
+            'gender' => 1,
+            'email' => 'yamada@example.com',
+            'category_id' => $category1->id,
+            'created_at' => '2026-06-09 10:00:00',
+        ]);
+
+        Contact::factory()->create([
+            'first_name' => '佐藤',
+            'last_name' => '花子',
+            'gender' => 2,
+            'email' => 'sato@example.com',
+            'category_id' => $category2->id,
+            'created_at' => '2026-06-08 10:00:00',
+        ]);
+
+        $response = $this->actingAs($user)->get('/contacts/export?keyword=山田');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $response->assertHeader(
+            'Content-Disposition',
+            'attachment; filename="contacts.csv"'
+        );
+
+        $content = $response->streamedContent();
+
+        $this->assertStringContainsString('山田', $content);
+        $this->assertStringContainsString('yamada@example.com', $content);
+        $this->assertStringNotContainsString('佐藤', $content);
+        $this->assertStringNotContainsString('sato@example.com', $content);
+    }
+
+    public function test_CSVは無指定時に全件を新着順で出力できる(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['content' => '商品トラブル']);
+
+        Contact::factory()->create([
+            'first_name' => '古い',
+            'last_name' => 'データ',
+            'email' => 'old@example.com',
+            'category_id' => $category->id,
+            'created_at' => '2026-06-08 10:00:00',
+        ]);
+
+        Contact::factory()->create([
+            'first_name' => '新しい',
+            'last_name' => 'データ',
+            'email' => 'new@example.com',
+            'category_id' => $category->id,
+            'created_at' => '2026-06-09 10:00:00',
+        ]);
+
+        $response = $this->actingAs($user)->get('/contacts/export');
+
+        $response->assertOk();
+        $response->assertHeader(
+            'Content-Disposition',
+            'attachment; filename="contacts.csv"'
+            );
+
+        $content = $response->streamedContent();
+
+        $this->assertStringContainsString('ID,氏名,性別,メール,電話,住所,建物,カテゴリ,内容,作成日時', $content);
+
+        $this->assertLessThan(
+            strpos($content, 'データ 古い'),
+            strpos($content, 'データ 新しい')
+        );
+    }
 }
