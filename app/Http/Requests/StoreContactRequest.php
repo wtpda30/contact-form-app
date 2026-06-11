@@ -63,5 +63,5 @@ class StoreContactRequest extends FormRequest
                 'detail.max' => 'お問い合わせ内容は120文字以内で入力してください',
                 'tag_ids.*.exists' => '選択されたタグが存在しません',
             ];
-        }
+    }
 }
