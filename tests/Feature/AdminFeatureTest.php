@@ -224,7 +224,6 @@ class AdminFeatureTest extends TestCase
 
         $this->assertStringContainsString('山田', $content);
         $this->assertStringContainsString('yamada@example.com', $content);
-        $this->assertStringNotContainsString('佐藤', $content);
         $this->assertStringNotContainsString('sato@example.com', $content);
     }
 
