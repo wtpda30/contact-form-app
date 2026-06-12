@@ -44,7 +44,7 @@ class ContactController extends Controller
             $query->whereDate('created_at', $validated['date']);
         }
 
-        $perPage = $validated['per_page'] ?? 7;
+        $perPage = $validated['per_page'] ?? 20;
 
         $contacts = $query->latest()->paginate($perPage);
 
