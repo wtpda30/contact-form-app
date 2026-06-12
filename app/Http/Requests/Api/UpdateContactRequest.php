@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateContactRequest extends FormRequest
@@ -17,7 +18,7 @@ class UpdateContactRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -25,7 +26,7 @@ class UpdateContactRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'gender' => ['required', 'integer', 'in:1,2,3'],
-            'email' => ['required','string','email', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255'],
             'tel' => ['required', 'string', 'regex:/^[0-9]{10,11}$/'],
             'address' => ['required', 'string', 'max:255'],
             'building' => ['nullable', 'string', 'max:255'],
@@ -38,7 +39,7 @@ class UpdateContactRequest extends FormRequest
 
     public function messages(): array
     {
-        return[
+        return [
             'first_name.required' => '姓を入力してください',
             'last_name.required' => '名を入力してください',
             'gender.required' => '性別を選択してください',

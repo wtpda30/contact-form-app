@@ -14,16 +14,19 @@ class TagController extends Controller
 
         return redirect('/admin');
     }
+
     public function edit(Tag $tag)
     {
         return view('admin.tags.edit', compact('tag'));
     }
-    public function update(UpdateTagRequest $request,Tag $tag)
+
+    public function update(UpdateTagRequest $request, Tag $tag)
     {
         $tag->update($request->validated());
 
         return redirect('/admin');
     }
+
     public function destroy(Tag $tag)
     {
         $tag->delete();

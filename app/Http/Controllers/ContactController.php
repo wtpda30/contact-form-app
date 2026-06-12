@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreContactRequest;
 use App\Http\Requests\ExportContactRequest;
+use App\Http\Requests\StoreContactRequest;
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\Tag;
@@ -17,8 +17,8 @@ class ContactController extends Controller
      */
     public function index()
     {
-        $categories=Category::all();
-        $tags=Tag::all();
+        $categories = Category::all();
+        $tags = Tag::all();
 
         return view('contact.index', compact('categories', 'tags'));
     }
@@ -28,16 +28,16 @@ class ContactController extends Controller
      */
     public function confirm(StoreContactRequest $request)
     {
-        $validated=$request->validated();
+        $validated = $request->validated();
 
-        $category=Category::find($validated['category_id']);
+        $category = Category::find($validated['category_id']);
 
         $tags = collect();
-        if(!empty($validated['tag_ids'])){
+        if (! empty($validated['tag_ids'])) {
             $tags = Tag::whereIn('id', $validated['tag_ids'])->get();
         }
 
-        return view('contact.confirm',compact('validated','category','tags'));
+        return view('contact.confirm', compact('validated', 'category', 'tags'));
     }
 
     /**
@@ -45,7 +45,7 @@ class ContactController extends Controller
      */
     public function store(StoreContactRequest $request)
     {
-        $validated=$request->validated();
+        $validated = $request->validated();
 
         $tagIds = $validated['tag_ids'] ?? [];
         unset($validated['tag_ids']);
@@ -53,8 +53,8 @@ class ContactController extends Controller
         DB::transaction(function () use ($validated, $tagIds) {
             $contact = Contact::create($validated);
 
-            if(!empty($tagIds)){
-            $contact->tags()->attach($tagIds);
+            if (! empty($tagIds)) {
+                $contact->tags()->attach($tagIds);
             }
         });
 
@@ -75,7 +75,7 @@ class ContactController extends Controller
 
         $query = Contact::with(['category', 'tags']);
 
-        if (!empty($validated['keyword'])) {
+        if (! empty($validated['keyword'])) {
             $keyword = $validated['keyword'];
 
             $query->where(function ($query) use ($keyword) {
@@ -85,16 +85,16 @@ class ContactController extends Controller
             });
         }
 
-        if (!empty($validated['gender']) && $validated['gender'] != 0) {
+        if (! empty($validated['gender']) && $validated['gender'] != 0) {
             $query->where('gender', $validated['gender']);
         }
 
-        if (!empty($validated['category_id'])) {
+        if (! empty($validated['category_id'])) {
             $query->where('category_id', $validated['category_id']);
         }
 
-        if (!empty($validated['date'])) {
-        $query->whereDate('created_at', $validated['date']);
+        if (! empty($validated['date'])) {
+            $query->whereDate('created_at', $validated['date']);
         }
 
         $contacts = $query->latest()->get();
@@ -126,7 +126,7 @@ class ContactController extends Controller
             foreach ($contacts as $contact) {
                 fputcsv($stream, [
                     $contact->id,
-                    $contact->last_name . ' ' . $contact->first_name,
+                    $contact->last_name.' '.$contact->first_name,
                     match ($contact->gender) {
                         1 => '男性',
                         2 => '女性',

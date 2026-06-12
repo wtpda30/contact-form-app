@@ -18,7 +18,7 @@ class ApiContactValidationTest extends TestCase
     {
         $category = Category::factory()->create();
 
-        $request = new IndexContactRequest();
+        $request = new IndexContactRequest;
 
         $data = [
             'keyword' => '山田',
@@ -35,7 +35,7 @@ class ApiContactValidationTest extends TestCase
 
     public function test_api検索で性別1から3は通る(): void
     {
-        $request = new IndexContactRequest();
+        $request = new IndexContactRequest;
 
         foreach ([1, 2, 3] as $gender) {
             $validator = Validator::make(
@@ -50,7 +50,7 @@ class ApiContactValidationTest extends TestCase
 
     public function test_api検索で性別が不正ならエラーになる(): void
     {
-        $request = new IndexContactRequest();
+        $request = new IndexContactRequest;
 
         $validator = Validator::make(
             ['gender' => 999],
@@ -65,7 +65,7 @@ class ApiContactValidationTest extends TestCase
 
     public function test_api検索で存在しないカテゴリーならエラーになる(): void
     {
-        $request = new IndexContactRequest();
+        $request = new IndexContactRequest;
 
         $validator = Validator::make(
             ['category_id' => 999],
@@ -80,7 +80,7 @@ class ApiContactValidationTest extends TestCase
 
     public function test_api検索で不正な日付ならエラーになる(): void
     {
-        $request = new IndexContactRequest();
+        $request = new IndexContactRequest;
 
         $validator = Validator::make(
             ['date' => 'abc'],
@@ -93,7 +93,7 @@ class ApiContactValidationTest extends TestCase
 
     public function test_api検索で不正なper_pageならエラーになる(): void
     {
-        $request = new IndexContactRequest();
+        $request = new IndexContactRequest;
 
         $validator = Validator::make(
             ['per_page' => 0],
@@ -110,7 +110,7 @@ class ApiContactValidationTest extends TestCase
 
         $tag = Tag::factory()->create();
 
-        $request = new StoreContactRequest();
+        $request = new StoreContactRequest;
 
         $data = [
             'first_name' => '太郎',
@@ -132,7 +132,7 @@ class ApiContactValidationTest extends TestCase
 
     public function test_api作成で不正な値なら日本語エラーになる(): void
     {
-        $request = new StoreContactRequest();
+        $request = new StoreContactRequest;
 
         $data = [
             'first_name' => '',
@@ -162,7 +162,7 @@ class ApiContactValidationTest extends TestCase
 
     public function test_api作成でtag_idsが配列でなければエラーになる(): void
     {
-        $request = new StoreContactRequest();
+        $request = new StoreContactRequest;
 
         $validator = Validator::make(
             ['tag_ids' => 1],

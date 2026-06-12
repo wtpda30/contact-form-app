@@ -209,6 +209,7 @@ echo "alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'" >> ~/.bashr
 - フロントエンド: Vite, Tailwind CSS ^3.4.0
 - 開発ツール: Docker, Laravel Sail, phpMyAdmin
 - Blade テンプレート
+- Laravel Pint
 
 ## 主な機能
 

@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Contact;
 use App\Models\Tag;
+use Illuminate\Database\Seeder;
 
 class ContactSeeder extends Seeder
 {
@@ -15,16 +15,16 @@ class ContactSeeder extends Seeder
     {
         // Factoryを使って20件のContactを作成、1件ずつタグを紐付ける
         Contact::factory()
-        ->count(20)
-        ->create()
-        ->each(function ($contact){
-            // 1〜3件のランダムな数を決定、ランダムなタグのIDを取得
-            $tagIds = Tag::inRandomOrder()
-            ->limit(rand(1, 3))
-            ->pluck('id');
+            ->count(20)
+            ->create()
+            ->each(function ($contact) {
+                // 1〜3件のランダムな数を決定、ランダムなタグのIDを取得
+                $tagIds = Tag::inRandomOrder()
+                    ->limit(rand(1, 3))
+                    ->pluck('id');
 
-            // 中間テーブルに紐付け
-            $contact->tags()->attach($tagIds);
-        });
+                // 中間テーブルに紐付け
+                $contact->tags()->attach($tagIds);
+            });
     }
 }

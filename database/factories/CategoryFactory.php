@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Category>
+ * @extends Factory<Category>
  */
 class CategoryFactory extends Factory
 {
@@ -17,7 +18,7 @@ class CategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'content'=>fake()->randomElement([
+            'content' => fake()->randomElement([
                 '商品の交換について',
                 '商品トラブル',
                 'ショップへのお問い合わせ',

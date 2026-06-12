@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
+
 class UpdateTagRequestTest extends TestCase
 {
     use RefreshDatabase;
@@ -25,7 +26,8 @@ class UpdateTagRequestTest extends TestCase
         Route::shouldReceive('current')->andReturn(null);
 
         $request->setRouteResolver(function () use ($tag) {
-            return new class($tag) {
+            return new class($tag)
+            {
                 public function __construct(private Tag $tag) {}
 
                 public function parameter($key)
@@ -57,8 +59,9 @@ class UpdateTagRequestTest extends TestCase
         );
 
         $request->setRouteResolver(function () use ($tag) {
-            return new class ($tag) {
-                public function __construct(private Tag $tag){}
+            return new class($tag)
+            {
+                public function __construct(private Tag $tag) {}
 
                 public function parameter($key)
                 {
