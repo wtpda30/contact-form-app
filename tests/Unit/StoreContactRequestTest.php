@@ -3,10 +3,10 @@
 namespace Tests\Unit;
 
 use App\Http\Requests\StoreContactRequest;
-use Illuminate\Support\Facades\Validator;
 use App\Models\Category;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
 
 class StoreContactRequestTest extends TestCase
@@ -15,7 +15,7 @@ class StoreContactRequestTest extends TestCase
 
     private function validator(array $data)
     {
-        $request = new StoreContactRequest();
+        $request = new StoreContactRequest;
 
         return Validator::make(
             $data,
@@ -39,7 +39,7 @@ class StoreContactRequestTest extends TestCase
             'building' => 'テストマンション',
             'category_id' => $category->id,
             'detail' => 'お問い合わせ内容です',
-            'tag_ids'=>$tags->pluck('id')->toArray(),
+            'tag_ids' => $tags->pluck('id')->toArray(),
         ];
         $validator = $this->validator($data);
         $this->assertFalse($validator->fails());
@@ -110,7 +110,7 @@ class StoreContactRequestTest extends TestCase
         $validator = $this->validator($data);
 
         $this->assertTrue($validator->fails());
-        $this->assertTrue( $validator->errors()->has('tel'));
+        $this->assertTrue($validator->errors()->has('tel'));
     }
 
     public function test_お問い合わせ内容が120文字を超えるとエラーになる(): void

@@ -19,14 +19,14 @@ class ContactResource extends JsonResource
             'address' => $this->address,
             'building' => $this->building,
             'detail' => $this->detail,
-            'category' => $this->whenLoaded('category',function(){
-                return[
+            'category' => $this->whenLoaded('category', function () {
+                return [
                     'id' => $this->category->id,
                     'content' => $this->category->content,
                 ];
             }),
-            'tags' =>$this->whenLoaded('tags',function(){
-                return $this->tags->map(fn($tag)=>[
+            'tags' => $this->whenLoaded('tags', function () {
+                return $this->tags->map(fn ($tag) => [
                     'id' => $tag->id,
                     'name' => $tag->name,
                 ]);

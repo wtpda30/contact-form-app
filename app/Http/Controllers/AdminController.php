@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\IndexContactRequest;
-use App\Models\Contact;
 use App\Models\Category;
+use App\Models\Contact;
 use App\Models\Tag;
 
 class AdminController extends Controller
@@ -18,24 +18,24 @@ class AdminController extends Controller
 
         $query = Contact::with(['category', 'tags']);
 
-        if(!empty($validated['keyword'])) {
-                $keyword=$validated['keyword'];
-                $query->where(function ($query) use ($keyword) {
-                    $query->where('first_name', 'like', "%{$keyword}%")
-                        ->orWhere('last_name', 'like', "%{$keyword}%")
-                        ->orWhere('email', 'like', "%{$keyword}%");
-                });
+        if (! empty($validated['keyword'])) {
+            $keyword = $validated['keyword'];
+            $query->where(function ($query) use ($keyword) {
+                $query->where('first_name', 'like', "%{$keyword}%")
+                    ->orWhere('last_name', 'like', "%{$keyword}%")
+                    ->orWhere('email', 'like', "%{$keyword}%");
+            });
         }
-        if(!empty($validated['gender']) && $validated['gender'] != 0){
-                $query->where('gender', $validated['gender']);
+        if (! empty($validated['gender']) && $validated['gender'] != 0) {
+            $query->where('gender', $validated['gender']);
         }
-        if(!empty($validated['category_id'])) {
-                $query->where('category_id', $validated['category_id']);
+        if (! empty($validated['category_id'])) {
+            $query->where('category_id', $validated['category_id']);
         }
-        if(!empty($validated['date'])) {
-                $query->whereDate('created_at', $validated['date']);
+        if (! empty($validated['date'])) {
+            $query->whereDate('created_at', $validated['date']);
         }
-        $contacts=$query->latest()->paginate(7);
+        $contacts = $query->latest()->paginate(7);
 
         $categories = Category::all();
 
@@ -49,7 +49,7 @@ class AdminController extends Controller
      */
     public function show(Contact $contact)
     {
-        $contact->load(['category','tags']);
+        $contact->load(['category', 'tags']);
 
         return view('admin.show', compact('contact'));
     }

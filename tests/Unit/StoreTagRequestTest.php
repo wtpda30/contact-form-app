@@ -14,7 +14,7 @@ class StoreTagRequestTest extends TestCase
 
     private function validate(array $data): bool
     {
-        $request = new StoreTagRequest();
+        $request = new StoreTagRequest;
 
         return Validator::make(
             $data,

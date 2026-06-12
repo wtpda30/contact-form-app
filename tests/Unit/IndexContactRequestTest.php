@@ -3,19 +3,20 @@
 namespace Tests\Unit;
 
 use App\Http\Requests\IndexContactRequest;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Category;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
 
 class IndexContactRequestTest extends TestCase
 {
     use RefreshDatabase;
+
     private function validate(array $data): bool
     {
-        $request= new IndexContactRequest();
+        $request = new IndexContactRequest;
 
-        return Validator::make($data,$request->rules())->passes();
+        return Validator::make($data, $request->rules())->passes();
     }
 
     public function test_正しい検索条件なら通過する(): void
@@ -23,10 +24,10 @@ class IndexContactRequestTest extends TestCase
         $category = Category::factory()->create();
 
         $data = [
-            'keyword'=>'山田',
-            'gender'=>1,
-            'category_id'=>$category->id,
-            'date'=>'2026-06-07',
+            'keyword' => '山田',
+            'gender' => 1,
+            'category_id' => $category->id,
+            'date' => '2026-06-07',
         ];
 
         $this->assertTrue($this->validate($data));
@@ -47,14 +48,14 @@ class IndexContactRequestTest extends TestCase
     public function test_日付形式が不正ならエラーになる(): void
     {
         $this->assertFalse($this->validate([
-            'date'=>'abc',
+            'date' => 'abc',
         ]));
     }
 
     public function test_存在しないカテゴリidならエラーになる(): void
     {
         $this->assertFalse($this->validate([
-            'category_id'=>999,
+            'category_id' => 999,
         ]));
     }
 }

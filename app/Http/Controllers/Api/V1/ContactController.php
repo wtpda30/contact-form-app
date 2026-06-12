@@ -22,7 +22,7 @@ class ContactController extends Controller
 
         $query = Contact::with(['category', 'tags']);
 
-        if (!empty($validated['keyword'])) {
+        if (! empty($validated['keyword'])) {
             $keyword = $validated['keyword'];
 
             $query->where(function ($query) use ($keyword) {
@@ -32,15 +32,15 @@ class ContactController extends Controller
             });
         }
 
-        if (!empty($validated['gender'])) {
+        if (! empty($validated['gender'])) {
             $query->where('gender', $validated['gender']);
         }
 
-        if (!empty($validated['category_id'])) {
+        if (! empty($validated['category_id'])) {
             $query->where('category_id', $validated['category_id']);
         }
 
-        if (!empty($validated['date'])) {
+        if (! empty($validated['date'])) {
             $query->whereDate('created_at', $validated['date']);
         }
 
@@ -99,7 +99,7 @@ class ContactController extends Controller
             $contact->tags()->sync($tagIds);
         });
 
-        return new ContactResource($contact->load(['category','tags']));
+        return new ContactResource($contact->load(['category', 'tags']));
     }
 
     /**
@@ -109,6 +109,7 @@ class ContactController extends Controller
     {
         $contact->tags()->detach();
         $contact->delete();
+
         return response()->json(null, 204);
     }
 }

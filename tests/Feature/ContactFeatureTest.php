@@ -8,7 +8,6 @@ use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-
 class ContactFeatureTest extends TestCase
 {
     use RefreshDatabase;
@@ -25,7 +24,7 @@ class ContactFeatureTest extends TestCase
 
         $response->assertViewHas('categories');
         $response->assertViewHas('tags');
-        
+
         $response->assertSee('商品の交換について');
         $response->assertSee('質問');
     }
@@ -145,7 +144,7 @@ class ContactFeatureTest extends TestCase
             'detail',
         ]);
 
-    $this->assertDatabaseCount('contacts', 0);
+        $this->assertDatabaseCount('contacts', 0);
     }
 
     public function test_thanksページが表示される(): void

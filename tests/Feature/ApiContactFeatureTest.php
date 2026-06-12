@@ -7,6 +7,7 @@ use App\Models\Contact;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+
 class ApiContactFeatureTest extends TestCase
 {
     use RefreshDatabase;
@@ -30,7 +31,7 @@ class ApiContactFeatureTest extends TestCase
 
         Contact::factory()->count(10)->create();
 
-        $response = $this->getJson('/api/v1/contacts?keyword=山田&gender=1&category_id=' . $category->id . '&date=2026-06-11&per_page=1');
+        $response = $this->getJson('/api/v1/contacts?keyword=山田&gender=1&category_id='.$category->id.'&date=2026-06-11&per_page=1');
 
         $response->assertOk()
             ->assertJsonStructure([
@@ -83,7 +84,7 @@ class ApiContactFeatureTest extends TestCase
 
         $contact->tags()->attach($tag->id);
 
-        $response = $this->getJson('/api/v1/contacts/' . $contact->id);
+        $response = $this->getJson('/api/v1/contacts/'.$contact->id);
 
         $response->assertOk()
             ->assertJsonPath('data.id', $contact->id)
@@ -207,7 +208,7 @@ class ApiContactFeatureTest extends TestCase
             'tag_ids' => [$tag->id],
         ];
 
-        $response = $this->putJson('/api/v1/contacts/' . $contact->id, $data);
+        $response = $this->putJson('/api/v1/contacts/'.$contact->id, $data);
 
         $response->assertStatus(200)
             ->assertJsonPath('data.id', $contact->id)
@@ -264,7 +265,7 @@ class ApiContactFeatureTest extends TestCase
             'tag_ids' => [999],
         ];
 
-        $response = $this->putJson('/api/v1/contacts/' . $contact->id, $data);
+        $response = $this->putJson('/api/v1/contacts/'.$contact->id, $data);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors([
@@ -288,7 +289,7 @@ class ApiContactFeatureTest extends TestCase
 
         $contact->tags()->attach($tag->id);
 
-        $response = $this->deleteJson('/api/v1/contacts/' . $contact->id);
+        $response = $this->deleteJson('/api/v1/contacts/'.$contact->id);
 
         $response->assertStatus(204);
 

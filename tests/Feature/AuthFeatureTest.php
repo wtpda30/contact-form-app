@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class AuthFeatureTest extends TestCase
 {
-       use RefreshDatabase;
+    use RefreshDatabase;
 
     public function test_ユーザー登録できる(): void
     {

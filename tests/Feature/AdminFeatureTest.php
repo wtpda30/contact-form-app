@@ -12,6 +12,7 @@ use Tests\TestCase;
 class AdminFeatureTest extends TestCase
 {
     use RefreshDatabase;
+
     public function test_未ログインなら管理画面にアクセスできない(): void
     {
         $response = $this->get('/admin');
@@ -134,7 +135,7 @@ class AdminFeatureTest extends TestCase
             'category_id' => $category2->id,
         ]);
 
-        $response = $this->actingAs($user)->get('/admin?category_id=' . $category1->id);
+        $response = $this->actingAs($user)->get('/admin?category_id='.$category1->id);
 
         $response->assertOk();
         $response->assertSee('山田');
@@ -148,14 +149,14 @@ class AdminFeatureTest extends TestCase
 
         Contact::factory()->create([
             'first_name' => '山田',
-            'email'=>'yamada@example.com',
+            'email' => 'yamada@example.com',
             'category_id' => $category->id,
             'created_at' => '2026-06-09 10:00:00',
         ]);
 
         Contact::factory()->create([
             'first_name' => '佐藤',
-            'email'=>'sato@example.com',
+            'email' => 'sato@example.com',
             'category_id' => $category->id,
             'created_at' => '2026-06-08 10:00:00',
         ]);
@@ -186,7 +187,7 @@ class AdminFeatureTest extends TestCase
         $this->assertEquals(8, $contacts->total());
     }
 
-    public function test_ログイン済みならフィルタ条件付きでCSVをダウンロードできる(): void
+    public function test_ログイン済みならフィルタ条件付きで_cs_vをダウンロードできる(): void
     {
         $user = User::factory()->create();
 
@@ -227,7 +228,7 @@ class AdminFeatureTest extends TestCase
         $this->assertStringNotContainsString('sato@example.com', $content);
     }
 
-    public function test_CSVは無指定時に全件を新着順で出力できる(): void
+    public function test_cs_vは無指定時に全件を新着順で出力できる(): void
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['content' => '商品トラブル']);
@@ -254,7 +255,7 @@ class AdminFeatureTest extends TestCase
         $response->assertHeader(
             'Content-Disposition',
             'attachment; filename="contacts.csv"'
-            );
+        );
 
         $content = $response->streamedContent();
 
