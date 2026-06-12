@@ -350,7 +350,7 @@ echo "alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'" >> ~/.bashr
 
 `sail artisan test --coverage`
 
-実行結果 86.9%
+実行結果 87.1%
 
 ## 環境開発URL
 
