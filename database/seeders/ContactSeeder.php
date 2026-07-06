@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\Contact;
 use App\Models\Tag;
+use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 
 class ContactSeeder extends Seeder
@@ -13,18 +15,29 @@ class ContactSeeder extends Seeder
      */
     public function run(): void
     {
-        // Factoryを使って20件のContactを作成、1件ずつタグを紐付ける
-        Contact::factory()
-            ->count(20)
-            ->create()
-            ->each(function ($contact) {
-                // 1〜3件のランダムな数を決定、ランダムなタグのIDを取得
-                $tagIds = Tag::inRandomOrder()
-                    ->limit(rand(1, 3))
-                    ->pluck('id');
+        $faker = Faker::create('ja_JP');
+        $categories = Category::all();
+        $tags = Tag::all();
 
-                // 中間テーブルに紐付け
-                $contact->tags()->attach($tagIds);
-            });
+        // サンプルデータを20件作成
+        for ($i = 0; $i < 20; $i++) {
+            $contact = Contact::create([
+                'first_name' => $faker->lastName,
+                'last_name' => $faker->firstName,
+                'gender' => $faker->numberBetween(1, 3),
+                'email' => $faker->unique()->safeEmail,
+                'tel' => $faker->numerify('###########'),
+                'address' => $faker->prefecture.$faker->city.$faker->streetAddress,
+                'building' => $faker->optional()->secondaryAddress,
+                'category_id' => $categories->random()->id,
+                'detail' => $faker->realText(120),
+            ]);
+
+            // タグをランダムに1〜3件紐付け
+            if ($tags->isNotEmpty()) {
+                $randomTags = $tags->random(rand(1, min(3, $tags->count())));
+                $contact->tags()->attach($randomTags->pluck('id'));
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-# COACHTECHお問い合わせフォーム
+# COACHTECH お問い合わせフォーム
 
 ## 概要
 
@@ -13,191 +13,119 @@
 - contactsテーブル 多:多 tagsテーブル
 - usersテーブル リレーションなし
 
+## 動作環境
+
+- Docker
+- Docker Compose
+
+※Windowsの場合はWSL2の利用を推奨します。
+
 ## 環境構築手順
 
-- DockerとDocker Composeを使用して環境をコンテナ化する
-
-### Laravelプロジェクトの作成(Laravel 10.x)
-
-以下のDockerコマンドを実行して、Laravel 10.xを明示的に指定してプロジェクトを作成。
+### 1.リポジトリをクローン
 
 ```
-  docker run --rm \
-   -u "$(id -u):$(id -g)" \
-   -v "$(pwd):/var/www/html" \
-   -w /var/www/html \
-   -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-   laravelsail/php82-composer:latest \
-   composer create-project laravel/laravel:^10.0 contact-form-app
+git clone https://github.com/wtpda30/contact-form-app.git
 ```
 
-### Laravel Sailのインストール
+### 2..envファイルの準備
 
-- プロジェクトディレクトリに移動
-  `cd contact-form-app`
-- Laravel Sailをインストール
-  以下のコマンドを実行
+.env.example をコピーして .env を作成します。
 
-```
-  docker run --rm \
-   -u "$(id -u):$(id -g)" \
-   -v "$(pwd):/var/www/html" \
-   -w /var/www/html \
-   -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-   laravelsail/php82-composer:latest \
-   composer require laravel/sail --dev
-```
+`cp .env.example .env`
 
-- Sailの設定ファイルをパブリッシュ(MySQLを選択)
-  以下のコマンドを実行
+.env ファイル内の以下のDB接続情報を確認・設定します。.env.example のデフォルト値はSail向けではないため、以下のように変更してください。
 
 ```
-  docker run --rm \
-   -u "$(id -u):$(id -g)" \
-   -v "$(pwd):/var/www/html" \
-   -w /var/www/html \
-   -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-   laravelsail/php82-composer:latest \
-   php artisan sail:install --with=mysql
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
 ```
 
-- M1/M2/M3 Mac(Apple Silicon)をお使いの方
+### 3.Composer依存パッケージのインストール
 
-    Apple Silicon搭載のMacでは、`sail up -d`実行時に以下のエラーが発生することがあります：
-
-```
-no matching manifest for linux/arm64/v8
-```
-
-解決方法: `compose.yaml`を開き、mysqlサービスに`platform: 'linux/amd64'`を追加してください。
+プロジェクトの初回セットアップ時は、vendor ディレクトリが存在しないため sail コマンドを使用できません。 以下のDockerコマンドを実行して、コンテナ内で composer install を実行します。
 
 ```
-mysql:
-    image: 'mysql/mysql-server:8.0'
-    platform: 'linux/amd64'  # ← この行を追加
-    ports:
+    docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php82-composer:latest \
+    composer install --ignore-platform-reqs
 ```
 
-### .envファイルの設定確認
+### 4.Laravel Sailの起動
 
-.envファイルを開き、データベース接続情報が以下と一致していることを確認
+以下のコマンドでDockerコンテナを起動します。
 
-```
-    DB_CONNECTION=mysql
-    DB_HOST=mysql
-    DB_PORT=3306
-    DB_DATABASE=laravel
-    DB_USERNAME=sail
-    DB_PASSWORD=password
-```
+  `./vendor/bin/sail up -d`を実行
 
-### フロントエンドのセットアップ(Vite&Tailwind CSS)
+- エイリアスの設定（推奨）
 
-- NPM依存パッケージのインストール
+  毎回 ./vendor/bin/sail と入力するのは手間なので、エイリアスを設定すると便利です。
 
-    Sailコンテナが起動していることを確認し
-    `sail npm install`を実行
+  `alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'`
 
-- Tailwind CSSのインストール
+### 5.アプリケーションキーの生成
 
-    `sail npm install -D tailwindcss@^3.4.0 postcss autoprefixer`
+  `sail artisan key:generate`
 
-    `sail npm install alpinejs`
+### 6.データベースのマイグレーションと初期データ投入
 
-- 設定ファイルの生成
+以下のコマンドでテーブルを作成し、ダミーデータを投入します。
 
-    `sail npx tailwindcss init -p`
+`sail artisan migrate:fresh --seed`
 
-- Tailwind CSSのテンプレートパス設定
-
-    tailwind.config.js を開き、以下のように設定
+このコマンドの入力後、下記のエラーが表示されることがあります。
 
 ```
-  /** @type {import("tailwindcss").Config} */
-  export default {
-   content: [
-    "./resources/**/*.blade.php",
-    "./resources/**/*.js",
-    "./resources/**/*.vue",
-  ],
-   theme: {
-    extend: {},
-  },
-   plugins: [],
-  }
+Illuminate\Database\QueryException
+
+SQLSTATE[HY000] [1044] Access denied for user 'sail'@'%' to database 'contact-form-app' (Connection: mysql, SQL: select table_name as `name`,         (data_length + index_length) as `size`, table_comment as `comment`, engine as `engine`, table_collation as `collation` from information_schema.tables where table_schema = 'contact-form-app' and table_type in ('BASE TABLE', 'SYSTEM VERSIONED') order by table_name)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+  +43 vendor frames
+
+  44  artisan:35
+      Illuminate\Foundation\Console\Kernel::handle()
 ```
 
-- 提供リポジトリのresourcesディレクトリと入れ替え
-
-    以下のリポジトリをクローンし、resourcesディレクトリを丸ごと入れ替える。
+このエラーはコンテナ内にデータが残っており、エラーが生じているケースなどがあります。 その場合は、以下のコマンドを順に実行して各コンテナを再起動して下さい。
 
 ```
-  git clone https://github.com/coachtech-prepared-file/Preparedblade-ConfirmationTest-ContactForm.git
+sail down -v
+sail up -d //コマンド実行後にSQLコンテナが立ち上がるまで時間がかかります。30秒ほどお待ちください。
+sail artisan migrate:fresh --seed
 ```
 
-入れ替え手順:
-
-1. Finderでプロジェクトフォルダを開く。
-   `open .`
-2. プロジェクト内の resources フォルダを削除。
-3. クローンしたリポジトリ内の resources フォルダをプロジェクト直下にコピー。
-
-- Vite開発サーバーの起動
-
-    `sail npm run dev`(実行したままにしておく)
-
-### phpMyAdminの追加
-
-- `compose.yaml` を開き、mysql サービスの後に以下の設定を追加。
+### 7.フロントエンドのビルド
 
 ```
-   phpmyadmin:
-     image: 'phpmyadmin:latest'
-     ports:
-        -'${FORWARD_PHPMYADMIN_PORT:-8080}:80'
-     environment:
-        PMA_HOST: mysql
-        PMA_USER: '${DB_USERNAME}'
-        PMA_PASSWORD: '${DB_PASSWORD}'
-     networks:
-        - sail
-     depends_on:
-        - mysql
+sail npm install
+sail npm install alpinejs
+sail npm run dev
 ```
 
-### Sailの起動とエイリアス設定
+`npm run dev` は開発中は起動したままにしてください。
 
-- Sailをバックグラウンドで起動
+### 8.アプリケーションへのアクセス
 
-    `./vendor/bin/sail up -d`
-
-- エイリアスを設定して 'sail' だけでコマンドを実行できるようにする
-
-```
-echo "alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'" >> ~/.zshrc
-```
-
-※ bashの場合
-
-```
-echo "alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'" >> ~/.bashrc
-```
-
-- シェルを再起動するか、新しいターミナルを開いてエイリアスを有効にする
-
-    `exec $SHELL`
-
-### アプリケーションキーの生成
-
-以下のコマンドを実行する
-
-`sail artisan key:generate`
-
-### データベースのマイグレーションと初期データ投入
-
-- 以下のコマンドでテーブルを作成し初期データを投入する
-
-    `sail artisan migrate --seed`
+ブラウザで http://localhost にアクセスします。
 
 ## 使用技術
 
@@ -206,152 +134,40 @@ echo "alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'" >> ~/.bashr
 - Laravel 10.x
 - DB: MySQL 8.0
 - Webサーバー: Nginx
-- フロントエンド: Vite, Tailwind CSS ^3.4.0
-- 開発ツール: Docker, Laravel Sail, phpMyAdmin
+- フロントエンド: Vite, Tailwind CSS 3.4.0
+- 開発ツール: Docker, Docker Compose,Laravel Sail, phpMyAdmin
 - Blade テンプレート
+- Laravel Fortify(認証)
 - Laravel Pint
 
-## 主な機能
+## 機能一覧
 
-### 認証機能
-
-- 管理者登録
-- ログイン
-- ログアウト
-
-### お問い合わせ機能
-
-- お問い合わせ送信
-- 入力内容確認
-- サンクスページ表示
-
-### 管理機能
-
-- お問い合わせ一覧表示
-- お問い合わせ検索
-- お問い合わせ詳細表示
-- お問い合わせ削除
-- CSVのエクスポート
-- タグ管理一覧
-- タグ登録
-- タグ管理
-- タグ編集
-- タグ削除
+- ユーザー認証（登録、ログイン、ログアウト）
+- お問い合わせ登録・一覧取得・検索・単体取得
+- お問い合わせ詳細表示・削除
+- CSVエクスポート
+- タグ管理（追加・更新・削除）
+- 公開API（お問い合わせCRUD）
 
 ## APIエンドポイント一覧
 
-- **お問い合わせ一覧取得**
+認証不要の公開APIです。全エンドポイントは /api/v1 プレフィックス配下に定義されています。
 
-| Method | URL              |
-| :----- | :--------------- |
-| GET    | /api/v1/contacts |
+| Method | URL                        | 概要                                         |
+| :----- | :------------------------- | :------------------------------------------- |
+| GET    | /api/v1/contacts           | お問い合わせ一覧（検索・ページネーション付き |
+| GET    | /api/v1/contacts/{contact} | お問い合わせ詳細（カテゴリ・タグ含む）       |
+| POST   | /api/v1/contacts/          | お問い合わせ新規作成                         |
+| PUT    | /api/v1/contacts/{contact} | お問い合わせ更新                             |
+| DELETE | /api/v1/contacts/{contact} | お問い合わせ削除                             |
 
-リクエストパラメータ
-
-| パラメータ  | 内容                |
-| :---------- | :------------------ |
-| keyword     | キーワード検索      |
-| gender      | 性別                |
-| category_id | お問い合わせ種類    |
-| date        | 作成日              |
-| page        | ページ番号          |
-| per_page    | 1ページあたりの件数 |
-
-- **お問い合わせ詳細取得**
-
-| Method | URL                        |
-| :----- | :------------------------- |
-| GET    | /api/v1/contacts/{contact} |
-
-- **お問い合わせ作成**
-
-| Method | URL               |
-| :----- | :---------------- |
-| POST   | /api/v1/contacts/ |
-
-- **お問い合わせ更新**
-
-| Method | URL                        |
-| :----- | :------------------------- |
-| PUT    | /api/v1/contacts/{contact} |
-
-- **お問い合わせ削除**
-
-| Method | URL                        |
-| :----- | :------------------------- |
-| DELETE | /api/v1/contacts/{contact} |
-
-## 動作確認
-
-### コンテナ起動
-
-`sail up -d`
-
-### マイグレーション・シーディング実行
-
-`sail artisan migrate:fresh --seed`
-
-### Vite起動
-
-`sail npm run dev`
-
-### アクセス
-
-- トップページ
-  `http://localhost`
-- phpMyAdmin
-  `http://localhost:8080`
-
-### ログイン確認
-
-以下のテストユーザーでログインできます
-
-| メールアドレス   | パスワード |
-| :--------------- | :--------- |
-| test@example.com | password   |
-
-※ UserSeederで作成したユーザーです
-
-### 機能確認
-
-- お問い合わせフォーム
-
-1. トップページへアクセス
-2. 必須項目を入力
-3. 確認画面へ遷移
-4. 送信
-5. サンクスページ表示
-
-- 管理画面
-
-1. ログイン
-2. /adminにアクセス
-3. お問い合わせ一覧表示を確認
-4. 検索機能を確認
-5. 詳細表示を確認
-6. 削除機能を確認
-7. エクスポートボタンでデータをCSVとしてダウンロード(検索条件で絞り込める)
-
-- タグ管理
-
-1. タグ一覧表示
-2. タグ新規作成
-3. タグ編集
-4. タグ削除
-
-## テスト
-
-### テスト実行
+## テスト実行
 
 `sail artisan test`
 
-2 deprecated, 63 passed
-
-### テストカバレッジ
+カバレッジ付きで実行する場合
 
 `sail artisan test --coverage`
-
-実行結果 87.1%
 
 ## 環境開発URL
 
